@@ -1,9 +1,8 @@
+---- In�cio CREATES ----
+CREATE DATABASE SPMEDG;
 
-CREATE DATABASE SPMED;
+USE SPMEDG;
 
-USE SPMED;
-
-GO
 
 CREATE TABLE  TipoPerfil
 (
@@ -16,22 +15,25 @@ CREATE TABLE Perfis
 (
 	idPerfil			INT PRIMARY KEY IDENTITY
 	,idTipoPerfil		INT FOREIGN KEY REFERENCES TipoPerfil (idTipoPerfil)
-	,nomePerfil			VARCHAR(200) NOT NULL
+	,nomeUsuario		VARCHAR(200) NOT NULL
 	,email				VARCHAR(200) UNIQUE NOT NULL
 	,senha				VARCHAR(200) NOT NULL
 );
+
 
 CREATE TABLE  Pacientes
 (
 	idPaciente			INT PRIMARY KEY IDENTITY
 	,idTipoPerfil		INT FOREIGN KEY REFERENCES TipoPerfil (idTipoPerfil)
 	,nome				VARCHAR(200)		NOT NULL
+	,email				VARCHAR(200) UNIQUE NOT NULL
+	,dataNascimento		SMALLDATETIME		NOT NULL
+	,telefone			VARCHAR(18)	 UNIQUE NULL
 	,RG					VARCHAR(12)	 UNIQUE	NOT NULL
 	,CPF				VARCHAR(14)  UNIQUE	NOT NULL
 	,endere�o			VARCHAR(200)		NOT NULL
-	,dataNascimento		SMALLDATETIME		NOT NULL
-	,telefone			VARCHAR(18)	 UNIQUE NOT NULL
 );
+
 
 CREATE TABLE  Especialidades
 (
@@ -39,15 +41,28 @@ CREATE TABLE  Especialidades
 	,nomeEspecialidade	VARCHAR(200) NOT NULL
 );
 
+
+CREATE TABLE  Clinicas
+(
+	idClinica		INT PRIMARY KEY IDENTITY
+	,clinica		VARCHAR(200) NOT NULL
+	,razaoSocial	VARCHAR(200) NOT NULL
+	,endere�o		VARCHAR(200) NOT NULL
+)
+
+
 CREATE TABLE  Medicos
 (
 	idMedico			INT PRIMARY KEY IDENTITY
+	,idTipoPerfil		INT FOREIGN KEY REFERENCES TipoPerfil (idTipoPerfil)
 	,idEspecialidade	INT FOREIGN KEY REFERENCES Especialidades (idEspecialidade)
-	,nome				VARCHAR(200) NOT NULL
+	,CRM				VARCHAR(10)	 UNIQUE	NOT NULL
+	,nome				VARCHAR(200)		NOT NULL
+	,email				VARCHAR(200) UNIQUE NOT NULL
+	,CNPJ				VARCHAR(18)	 UNIQUE	NOT NULL
+	,idClinica			INT FOREIGN KEY REFERENCES Clinicas (idClinica)
 );
 
-ALTER TABLE Medicos
-ADD idTipoPerfil		INT FOREIGN KEY REFERENCES TipoPerfil (idTipoPerfil);
 
 
 CREATE TABLE  Consultas
@@ -56,4 +71,46 @@ CREATE TABLE  Consultas
 	,idPaciente			INT FOREIGN KEY REFERENCES Pacientes  (idPaciente)
 	,idMedico			INT FOREIGN KEY REFERENCES Medicos    (idMedico)
 	,dataConsulta		SMALLDATETIME NOT NULL
+	,situacao			VARCHAR(200)  NOT NULL
 );
+
+
+--Criar fun��o (Escalar)
+
+CREATE FUNCTION  QuantidadeDeMedicos (@Especialidades VARCHAR(200))
+--Tipo de dados do retorno
+RETURNS INT 
+--Como
+AS 
+	--In�cio da fun��o
+	BEGIN
+	--Declarar vari�vel		--Nome		   --Tipo vari�vel
+	DECLARE					 @Number		INT
+	--Contagem de n�meros de ids	 --Da tabelas M�dicos
+	SELECT  @Number = COUNT(IdMedico) FROM Medicos m
+	-- Add Especialidades
+	INNER JOIN Especialidades e
+	--Rela��o dos ids										--Nome da especialidade contada
+	ON m.IdEspecialidade = e.IdEspecialidade WHERE e.nomeEspecialidade = @Especialidades
+	--Retornar contagem 
+	RETURN @Number
+--Fim 
+END;
+
+
+
+CREATE PROCEDURE idadeUsuario @Pacientes varchar(30), @idadeUsuario VARCHAR
+AS
+SELECT  p.nome, DATEDIFF(hour,  p.dataNascimento, getdate()) / 8766 AS Idade FROM Pacientes p
+WHERE  p.nome = @Pacientes AND @idadeUsuario = @idadeUsuario;
+
+GO
+
+---- Fim CREATES ----
+
+
+
+
+
+
+

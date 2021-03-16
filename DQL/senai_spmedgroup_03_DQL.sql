@@ -1,18 +1,6 @@
 
 ---- SELECTS ----
 
-SELECT * FROM TipoPerfil;
-
-SELECT * FROM Perfis;
-
-SELECT * FROM Especialidades;
-
-SELECT * FROM Pacientes;
-
-SELECT * FROM Medicos;
-
-SELECT * FROM Consultas;
-
 -- Medicos e suas especialidades --
 SELECT Medicos.nome AS Medicos, Especialidades.nomeEspecialidade AS Especialidade FROM Medicos
 INNER JOIN Especialidades
@@ -34,3 +22,27 @@ ON Consultas.idMedico = Medicos.idMedico
 INNER JOIN Especialidades
 ON Medicos.idEspecialidade = Especialidades.idEspecialidade;
 
+
+-- Quantidade de usu�rios ap�s realizar a importa��o do banco de dados --
+SELECT COUNT(idPerfil) AS QntHabilidades FROM Perfis
+
+
+-- Idade do usu�rio a partir da data de nascimento --
+SELECT Pacientes.nome, DATEDIFF(hour, Pacientes.dataNascimento, getdate()) / 8766 AS Idade 
+FROM Pacientes
+
+
+-- Evento para que a idade do usu�rio seja calculada todos os dias--
+
+
+-- Quantidade de m�dicos de uma determinada especialidade --
+
+SELECT dbo.QuantidadeDeMedicos('Psiquiatria') AS [Qntd Medicos];
+
+
+-- Idade do usu�rio a partir de uma determinada stored procedure --
+
+EXEC idadeUsuario @Pacientes = 'Bruno', @idadeUsuario = idadeUsuario 
+
+
+---- FIM SELECTS ----
